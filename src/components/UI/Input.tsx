@@ -8,7 +8,6 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     id: string,
     isPassword?: boolean
     error?: string
-    placeholder?: string
     className?: string
 }
 
@@ -16,13 +15,13 @@ export default function Input ({
     label,
     id,
     error,
-    placeholder,
     className,
     isPassword,
     ...props
 }: InputProps) {
 
     const { type } = props
+    
     const [showPassword, setShowPassword]  = useState<'password' | 'text'>(type === 'password' ? 'password' : 'text')
 
     const handleShowPassword = () => {
@@ -34,15 +33,16 @@ export default function Input ({
             <label htmlFor={id} className="text-2xl text-slate-500">{label}</label>
             
             <div className="relative w-full">
-                <input
-                    {...props}
-                    id={id}
-                    placeholder={placeholder}
-                    aria-invalid={!!error}
-                    aria-describedby={error ? `${id}-error` : undefined}
-                    type={isPassword ? showPassword : type}
-                    className={`bg-slate-300 border-none p-3 rounded-lg placeholder-slate-400 w-full ${className}`}
-                />
+                
+                    <input
+                        {...props}
+                        id={id}
+                        aria-invalid={!!error}
+                        aria-describedby={error ? `${id}-error` : undefined}
+                        type={isPassword ? showPassword : type}
+                        className={`bg-slate-300 border-none p-3 rounded-lg placeholder-slate-400 w-full ${className}`}
+                    />
+               
 
                 {isPassword && <img 
                     src={showPassword === 'password' ? hidePasswordImg : showPasswordImg}

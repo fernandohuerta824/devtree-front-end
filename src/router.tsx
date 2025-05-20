@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 const router = createBrowserRouter([
+    
     {
         path: '/auth',
         lazy: async () => ({
@@ -17,6 +18,28 @@ const router = createBrowserRouter([
                 path: 'register',
                 lazy: async () => ({
                     Component: (await import('./pages/Register')).default
+                })
+            }
+        ]
+    },
+    {
+        path: '/admin',
+        id: 'user',
+        lazy: async() => ({
+            Component: (await import('./pages/AppLayout')).default,
+            loader: (await import('./loaders/auth')).default
+        }),
+        children: [
+            {
+                index: true,
+                lazy: async () => ({
+                    Component: (await import('./pages/LinkTreeView')).default
+                })
+            },
+            {
+                path: 'profile',
+                lazy: async () => ({
+                    Component: (await import('./pages/ProfileView')).default
                 })
             }
         ]
