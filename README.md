@@ -73,7 +73,7 @@ _
 - [x] Configurar Tailwind CSS
 - [x] Crear la estructura básica de la aplicación
 - [x] Implementar el registro de usuarios
-- [ ] Implementar el inicio de sesión
+- [x] Implementar el inicio de sesión
 - [ ] Implementar la personalización del perfil
 - [ ] Implementar la subida de imágenes
 

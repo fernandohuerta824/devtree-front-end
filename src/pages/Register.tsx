@@ -13,7 +13,6 @@ export default function Register() {
 
 
     const handleRegister = async (data: RegisterUser) => {
-        
         if(isSubmitting) {
             return
         }
@@ -41,8 +40,6 @@ export default function Register() {
             }
         }
     }
-
-    console.log(errors)
 
     const password = watch('password')
 
