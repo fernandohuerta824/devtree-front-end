@@ -51,13 +51,17 @@ _
    npm install
    ```
 
-3. Inicializa el servidor de desarrollo:
+3. Configura las variables de entorno:
+   - Crea un archivo `.env.local` en la raíz del proyecto y agrega las variables necesarias. Puedes usar el archivo `.env.example` como referencia.
+
+   
+4. Inicializa el servidor de desarrollo:
    ```bash
    npm run dev
    ```
-4. Abre tu navegador y visita `http://localhost:5173` para ver la aplicación en funcionamiento.
+5. Abre tu navegador y visita `http://localhost:5173` para ver la aplicación en funcionamiento.
 
-5. Para interactuar con la API del backend, asegúrate de que el servidor del backend esté corriendo en `http://localhost:8080` 
+6. Para interactuar con la API del backend, asegúrate de que el servidor del backend esté corriendo en `http://localhost:8080` 
 
 
 
@@ -67,8 +71,8 @@ _
 - [x] Inicializar el repositorio
 - [x] Configurar el entorno de desarrollo
 - [x] Configurar Tailwind CSS
-- [ ] Crear la estructura básica de la aplicación
-- [ ] Implementar el registro de usuarios
+- [x] Crear la estructura básica de la aplicación
+- [x] Implementar el registro de usuarios
 - [ ] Implementar el inicio de sesión
 - [ ] Implementar la personalización del perfil
 - [ ] Implementar la subida de imágenes

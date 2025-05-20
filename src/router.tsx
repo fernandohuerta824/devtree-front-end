@@ -1,10 +1,25 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-
 const router = createBrowserRouter([
     {
-        path: '/',
-        element: <h1>Desde Home</h1>,
+        path: '/auth',
+        lazy: async () => ({
+            Component: (await import('./pages/AuthLayout')).default
+        }),
+        children: [
+            {
+                path: 'login',
+                lazy: async () => ({
+                    Component: (await import('./pages/Login')).default
+                })
+            },
+            {
+                path: 'register',
+                lazy: async () => ({
+                    Component: (await import('./pages/Register')).default
+                })
+            }
+        ]
     }
 ])
 
