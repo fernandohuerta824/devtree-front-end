@@ -15,10 +15,8 @@ export type LoginUser = Pick<RegisterUser, 'email' | 'password'>
 export type RegisterFields = 'name' | 'email' | 'handle' | 'password'
 
 export type AuthStore = {
-    user: {
-        isLoading: boolean
-        error: string|null
-        data: User|null
-    }
-    setUser: (user: User) => void
+    user: User | null
+    setUser: (user: User | null) => void
+    login: (token: string) => void
+    logout: () => void
 }

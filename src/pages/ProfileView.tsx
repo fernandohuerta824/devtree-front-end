@@ -3,11 +3,10 @@ import TextArea from "../components/UI/TextArea";
 import { useAuth } from "../hooks/useAuth";
 
 export default function ProfileView() {
-    const { user: { isLoading, data } } = useAuth()
+    const { user } = useAuth()
     return (
         <>
-            {isLoading && <p>Loading...</p>}
-            {!isLoading && <form
+            <form
                 className="bg-white p-10 rounded-lg space-y-5"
                 onSubmit={() => { }}
             >
@@ -18,7 +17,7 @@ export default function ProfileView() {
                     id="handle"
                     className="border-none rounded-lg p-2"
                     placeholder="Handle o Nombre de Usuario"
-                    defaultValue={data?.handle}
+                    defaultValue={user?.handle}
                 />
 
                 <TextArea
@@ -44,7 +43,7 @@ export default function ProfileView() {
                     className="bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
                     value='Guardar Cambios'
                 />
-            </form>}
+            </form>
 
         </>
 

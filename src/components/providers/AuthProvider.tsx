@@ -1,61 +1,31 @@
-import { useCallback, useEffect, useState } from "react";
-import { api } from "../../utils/axios";
+import { useState } from "react";
 import type { AuthStore, User } from "../../types";
 
 import { AuthContext } from "../../store/AuthStore";
-import { isAxiosError } from "axios";
+import { getUser } from "../../loaders/auth";
 
-export default function AuthProvider({children}: {children: React.ReactNode}) {
-    const [state, setState] = useState<Pick<AuthStore, 'user'>>({
-        user: {
-            isLoading: true,
-            error: null,
-            data: null
-        }
-    })
+export default function AuthProvider({children, user}: {children: React.ReactNode, user: User | null}) {
+    const [state, setState] = useState<Pick<AuthStore, 'user'>>({user})
 
-    const setUser = (user: User) => {
+    const setUser = (user: User | null) => {
         setState(state => {
-            const newUser = {...state.user, data: user, isLoading: false, error: null}
-
-            return {...state, user: newUser}
+            return { ...state, user }
         })
     }
 
-    const getUser = useCallback(async function getUser () {
-        setState(state => {
-            const newUser = {...state.user, isLoading: true, error: null}
-            
-            return {...state, user: newUser}
-        })
-        try {
-            const token = localStorage.getItem('AUTH_TOKEN')
-            const res = await api.get('/user', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            await new Promise((resolve) => setTimeout(resolve, 2000))
-        
-            setUser(res.data.user)
-        } catch(error) {
-            if(isAxiosError(error)) {
-                setState(state => {
-                const newUser = {...state.user, isLoading: false, error: error.message}
-                
-                return {...state, user: newUser}
-                })
-            }
-        } 
-    }, [])
+    const login = async (token: string) => {
+        localStorage.setItem('auth_token', token)
+        const { user } = await getUser()
+        setUser(user)
+    }
 
-
-    useEffect(() => {
-        getUser()
-    }, [getUser])
+    const logout = () => {
+        localStorage.removeItem('auth_token')
+        setUser(null)
+    }
 
     return (
-        <AuthContext.Provider value={{...state, setUser}}>
+        <AuthContext.Provider value={{ ...state, setUser, login, logout}}>
             {children}
         </AuthContext.Provider>
     )

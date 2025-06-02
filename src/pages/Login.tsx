@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../utils/axios";
@@ -7,10 +7,12 @@ import Input from "../components/UI/Input"
 import type { LoginUser } from "../types";
 import { validatePassword } from "../utils/validatePassword";
 import { isAxiosError } from "axios";
+import { useAuth } from "../hooks/useAuth";
 
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginUser>()
+    const { login } = useAuth()
 
     const handleLogin = async (data: LoginUser) => {
         if(isSubmitting) {
@@ -25,7 +27,7 @@ export default function Login() {
 
         try {
             const { data: resData } = await api.post('/auth/login', data)
-            localStorage.setItem('AUTH_TOKEN', resData.token)
+            await login(resData.token)
         } catch (error) {
             if(error && isAxiosError(error)) {
                 if(error.status === 401) {

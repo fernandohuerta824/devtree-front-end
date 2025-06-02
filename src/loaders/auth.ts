@@ -1,19 +1,32 @@
 import { api } from "../utils/axios";
+import type { User } from "../types";
+import { isAxiosError } from "axios";
 
-async function getUser () {
-    const token = localStorage.getItem('AUTH_TOKEN')
-    const res = await api.get('/user', {
-        headers: {
-            Authorization: `Bearer ${token}`
+export const getUser = async () => {
+    try {
+        const token = localStorage.getItem("auth_token");
+        const res = await api.get("/user", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        return {
+            user: res.data.user as User,
         }
-    })
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    } catch (error) {
+        if(isAxiosError(error) && error.status === 401) {
+            return {
+                user: null
+            }
+        }
 
-    return res
+        throw error
+    }
+
 }
 
-export default function auth () {
+export const authLoader = () => {
     return {
-        data: getUser()
+        data: getUser(),
     }
 }

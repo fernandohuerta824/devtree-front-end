@@ -1,0 +1,19 @@
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+export default function Redirect() {
+    const { user } = useAuth()
+    const location = useLocation()
+
+    console.log(location)
+    if (location.pathname.startsWith('/admin') && !user) {
+        return <Navigate to={'/'} />
+    }
+
+    if (!location.pathname.startsWith('/admin') && user) {
+        return <Navigate to={'/admin'} />
+    }
+
+    return <Outlet key={location.pathname} />
+
+}
