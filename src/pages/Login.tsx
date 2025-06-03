@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { api } from "../utils/axios";
@@ -11,13 +11,13 @@ import { isAxiosError } from "axios";
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginUser>()
+    const navigate = useNavigate()
 
     const handleLogin = async (data: LoginUser) => {
         if(isSubmitting) {
             return
         }
         if(!validatePassword(data.password)) {
-            await new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 500)))
             toast.error('The email or password is wrong')
 
             return
@@ -26,6 +26,7 @@ export default function Login() {
         try {
             const { data: resData } = await api.post('/auth/login', data)
             localStorage.setItem('AUTH_TOKEN', resData.token)
+            navigate('/admin')
         } catch (error) {
             if(error && isAxiosError(error)) {
                 if(error.status === 401) {
