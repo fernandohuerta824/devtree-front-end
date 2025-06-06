@@ -25,7 +25,7 @@ export default function TextArea ({
                 {...props}
             />
 
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p id={`${id}-error`} className="text-red-600 font-bold text-sm">{error}</p>}  
         </div>
     )
 }
