@@ -5,7 +5,6 @@ export default function Redirect() {
     const { user } = useAuth()
     const location = useLocation()
 
-    console.log(location)
     if (location.pathname.startsWith('/admin') && !user) {
         return <Navigate to={'/'} />
     }

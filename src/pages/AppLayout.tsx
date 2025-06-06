@@ -6,7 +6,7 @@ import NavigationTabs from "../components/NavigationTabs";
 import { useAuth } from "../hooks/useAuth";
 
 export default function AppLayout() {
-    const { logout } = useAuth()
+    const { logout, user } = useAuth()
     const handleLogout = () => {
         logout()
     }
@@ -39,7 +39,7 @@ export default function AppLayout() {
                             to={''}
                             target="_blank"
                             rel="noreferrer noopener"
-                        >Visitar Mi Perfil</Link>
+                        >Visitar Mi Perfil / {user?.handle}</Link>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-10 mt-10">

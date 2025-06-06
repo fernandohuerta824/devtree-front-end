@@ -3,6 +3,7 @@ export type User = {
     name: string
     email: string
     handle: string
+    description: string
 }
 
 export type RegisterUser = Pick<User, 'handle' | 'email' | 'name'> & {
@@ -10,13 +11,17 @@ export type RegisterUser = Pick<User, 'handle' | 'email' | 'name'> & {
     confirmPassword: string
 }
 
+export type ProfileUser = Pick<User, 'description' | 'handle'>
+
 export type LoginUser = Pick<RegisterUser, 'email' | 'password'>
 
 export type RegisterFields = 'name' | 'email' | 'handle' | 'password'
 
+export type UpdateProfileFields = 'description' | 'handle'
+
 export type AuthStore = {
     user: User | null
     setUser: (user: User | null) => void
-    login: (token: string) => void
+    login: (token: string) => Promise<void>
     logout: () => void
 }

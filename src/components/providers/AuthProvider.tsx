@@ -14,13 +14,13 @@ export default function AuthProvider({children, user}: {children: React.ReactNod
     }
 
     const login = async (token: string) => {
-        localStorage.setItem('auth_token', token)
+        localStorage.setItem('AUTH_TOKEN', token)
         const { user } = await getUser()
         setUser(user)
     }
 
     const logout = () => {
-        localStorage.removeItem('auth_token')
+        localStorage.removeItem('AUTH_TOKEN')
         setUser(null)
     }
 
