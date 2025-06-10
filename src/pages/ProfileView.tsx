@@ -3,14 +3,15 @@ import TextArea from "../components/UI/TextArea";
 import { useForm, type ErrorOption } from 'react-hook-form'
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import type { ProfileUser, User, UpdateProfileFields } from "../types";
-import { updateUser } from "../api/DevTreeAPI";
+import { updateUser, uploadImage } from "../api/DevTreeAPI";
 import { toast } from "sonner";
+import type { ChangeEvent } from "react";
 
 export default function ProfileView() {
     const queryClient = useQueryClient()
     const data: User = queryClient.getQueryData(['user'])!
 
-    const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<ProfileUser>({ defaultValues: {
+    const { register, handleSubmit, formState: { errors }, setError } = useForm<ProfileUser>({ defaultValues: {
         handle: data?.handle,
         description: data?.description
     }})
@@ -20,16 +21,15 @@ export default function ProfileView() {
         mutationKey: ['updateProfile'],
         onError: (error) => {
             if('errors' in error && 'status' in error) {
-                if(error.status !== 422) {
+                if(error.status === 422) {
+                    const errors =  error.errors as Record<UpdateProfileFields,ErrorOption>
+    
+                    const errorsArray = Object.entries(errors)
+    
+                    errorsArray.forEach(error => setError(error[0] as UpdateProfileFields, error[1]))
+    
                     return
                 }
-                const errors =  error.errors as Record<UpdateProfileFields,ErrorOption>
-
-                const errorsArray = Object.entries(errors)
-
-                errorsArray.forEach(error => setError(error[0] as UpdateProfileFields, error[1]))
-
-                return
             }
 
             toast.error('Something went wrong, try again later')
@@ -42,10 +42,38 @@ export default function ProfileView() {
         }
     })
 
-    console.log(isSubmitting)
+    const uploadImageMutation = useMutation({
+        mutationFn: uploadImage,
+        mutationKey: ['uploadImage'], 
+        onError: (error) => {
+            if('errors' in error && 'status' in error && error.status === 422) {
+                if(error.status === 422 ) {
+                    return
+                }
+            }
+
+            toast.error('Error at trying to upload the image')
+        },
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user'], (prevData: User) => {
+                return {
+                    ...prevData,
+                    image: data.image
+                }
+            })
+        }
+    })
+
+    const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        if(!e.target.files || e.target.files.length <= 0) {
+            return
+        }
+
+        await uploadImageMutation.mutateAsync(e.target.files[0])
+    }
 
     const handleUserProfileForm = async (fd: ProfileUser) => {
-        if(isSubmitting) {
+        if(updateProfile.isPending) {
             return
         }
         await updateProfile.mutateAsync(fd)
@@ -62,7 +90,6 @@ export default function ProfileView() {
                 id="handle"
                 className="border-none rounded-lg p-2"
                 placeholder="Handle o Nombre de Usuario"
-                defaultValue={data?.handle || ''}
                 {...register('handle',  {
                     required: 'The handle is required'
                 })}
@@ -86,14 +113,15 @@ export default function ProfileView() {
                 name="handle"
                 className="border-none rounded-lg p-2"
                 accept="image/*"
-                onChange={() => {}}
+                onChange={handleChange}
+                disabled={uploadImageMutation.isPending}
             />
 
             <input
                 type="submit"
-                className={`bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer${isSubmitting ? ' disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed' : ''}`}
-                disabled={isSubmitting}
-                value={`${isSubmitting ? 'Updating user...' : 'Update user'}`}
+                className={`bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer${updateProfile.isPending ? ' disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed' : ''}`}
+                disabled={updateProfile.isPending}
+                value={`${updateProfile.isPending ? 'Updating user...' : 'Update user'}`}
             />
         </form>
     );

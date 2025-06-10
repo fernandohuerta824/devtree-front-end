@@ -13,7 +13,7 @@ export default function AppLayout() {
     }
 
     if(isError) {
-        if(error.message === 'Unauthorized') {
+        if(error.name === 'UnauthorizedError') {
             return <Navigate to={'/'} replace/>
         }
         return <p>{error.message}</p>

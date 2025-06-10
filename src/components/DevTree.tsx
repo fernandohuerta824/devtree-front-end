@@ -6,7 +6,7 @@ import NavigationTabs from "../components/NavigationTabs";
 import type { User } from "../types";
 
 type DevTreeProps = {
-    data: User & {id: string}
+    data: User
 }
 
 export default function DevTree({ data }: DevTreeProps) {
@@ -46,12 +46,21 @@ export default function DevTree({ data }: DevTreeProps) {
                             <Outlet />
                         </div>
                         <div className="w-full md:w-96 bg-slate-800 px-5 py-10 space-y-6">
+                            <p className="text-4xl text-center text-white">{data.handle}</p>
 
+                            {
+                                data.image && 
+                                <div className="mx-auto w-[250px] h-[250px]">
+                                    <img src={data.image} alt={data.name} className="w-[250px] h-[250px] object-contain"/>
+                                </div>
+                            }
+
+                            <p className="text-center text-lg font-black text-white">{data.description}</p>
                         </div>
                     </div>
                 </main>
             </div>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" duration={5000} />
         </>
     )
 }

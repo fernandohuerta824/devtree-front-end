@@ -16,7 +16,7 @@ export async function getUser() {
 
 export async function updateUser(user: Pick<User, 'handle' | 'description'>) {
     try {
-        await api.patch<Pick<User, 'handle' | 'description'>>("/user", user)
+        await api.patch<{user: User, message: string}>("/user", user)
     } catch (error) {
         if (isAxiosError(error)) {
             throw error.response?.data;  
@@ -25,4 +25,17 @@ export async function updateUser(user: Pick<User, 'handle' | 'description'>) {
     }
 }
 
+export async function uploadImage(file: File) {
+    try {
+        const formData = new FormData()
+        formData.append('file', file)
+        const { data } =  await api.post('/user/image', formData)
+        return data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            throw error.response?.data;  
+        }
+        throw new Error("Something went wrong");
+    }
+}
 
