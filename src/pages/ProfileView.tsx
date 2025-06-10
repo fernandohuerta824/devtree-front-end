@@ -6,15 +6,27 @@ import type { ProfileUser, UpdateProfileFields, User } from "../types";
 import { api } from "../utils/axios";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
+import { useState } from "react";
+
+type ImageStatus = {
+    isLoading: boolean
+    error: null | unknown
+    data: null | { message: string, image: string }
+}
 
 export default function ProfileView() {
     const { user, setUser } = useAuth()
     const { register, formState: { errors, isSubmitting }, handleSubmit, setError } = useForm<ProfileUser>({
         defaultValues: { handle: user?.handle, description: user?.description}
     })
+    const [imageStateUpload, setImageStateUpload] = useState<ImageStatus>({
+        isLoading: false,
+        error: null,
+        data: null
+    })
 
     const handleUpdateProfile = async (fd: ProfileUser) => {
-        if(isSubmitting) {
+        if(isSubmitting || imageStateUpload.isLoading) {
             return
         }
 
@@ -38,6 +50,34 @@ export default function ProfileView() {
             toast.error('Something went wrong, try again later')
         }
     }
+
+    const handleChangeImage =  async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if(!e.target.files || e.target.files.length <= 0 || isSubmitting || imageStateUpload.isLoading || !user) {
+            return
+        }
+
+        setImageStateUpload(prevState => ({...prevState, isLoading: true, error: null}))
+        try {
+            const file = e.target.files[0]
+            const fd = new FormData()
+            fd.append('file', file)
+            const { data } = await api.post<{ message: string, image: string }>('/user/image', fd)
+            setUser({...user, image: data.image})
+        } catch (error) {
+            setImageStateUpload(prevState => ({...prevState, error: error}))
+            if(isAxiosError(error)) {
+                if(error.status === 422) {
+                    return
+                }
+
+                toast.error('Error at trying to upload the image')
+            }
+        } finally {
+            setImageStateUpload(prevState => ({...prevState, isLoading: false }))
+
+        }
+    }
+
     return (
         <>
             <form
@@ -72,16 +112,17 @@ export default function ProfileView() {
                     id="image"
                     type="file"
                     name="handle"
-                    className="border-none rounded-lg p-2"
+                    className="border-none rounded-lg p-2 disabled:cursor-not-allowed"
                     accept="image/*"
-                    onChange={() => { }}
+                    onChange={handleChangeImage}
+                    disabled={imageStateUpload.isLoading}
                 />
 
                 <input
                     type="submit"
-                    className={`bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer${isSubmitting ? ' disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed' : ''}`}
-                    disabled={isSubmitting}
-                    value={`${isSubmitting ? 'Updating user...' : 'Update user'}`}
+                    className={`bg-cyan-400 p-2 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer disabled:bg-gray-500 disabled:text-white disabled:cursor-not-allowed`}
+                    disabled={(isSubmitting || imageStateUpload.isLoading)}
+                    value={`${isSubmitting || imageStateUpload.isLoading ? 'Updating user...' : 'Update user'}`}
                 />
             </form>
 
