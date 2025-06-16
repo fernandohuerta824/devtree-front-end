@@ -14,9 +14,11 @@ export async function getUser() {
     }
 }
 
-export async function updateUser(user: Pick<User, 'handle' | 'description'>) {
+export async function updateUser(user: Pick<User, 'handle' | 'description' | 'links'>) {
     try {
-        await api.patch<{user: User, message: string}>("/user", user)
+        console.log(user)
+        const { data } = await api.patch<{user: User, message: string}>("/user", user)
+        return data
     } catch (error) {
         if (isAxiosError(error)) {
             throw error.response?.data;  

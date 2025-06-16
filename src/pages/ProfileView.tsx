@@ -34,11 +34,12 @@ export default function ProfileView() {
 
             toast.error('Something went wrong, try again later')
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast.success('User has been updated successfully')
-            queryClient.invalidateQueries({
-                queryKey: ['user']
-            })
+            queryClient.setQueryData(['user'], (prevData: User) => ({
+                ...prevData,
+                ...data.user
+            }))
         }
     })
 
@@ -76,7 +77,7 @@ export default function ProfileView() {
         if(updateProfile.isPending) {
             return
         }
-        await updateProfile.mutateAsync(fd)
+        await updateProfile.mutateAsync({...fd, links: data.links})
     }
     
     return (
