@@ -31,8 +31,8 @@ export default function ProfileView() {
         }
 
         try {
-            const { data: { user } } = await api.patch<{user: User, message: string}>('/user', fd)
-            setUser(user)
+            const { data } = await api.patch<{user: User, message: string}>('/user', {...fd, links: user?.links})
+            setUser(data.user)
             toast.success('User has been updated succesfully')
         } catch(error) {
             if(isAxiosError(error)) {

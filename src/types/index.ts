@@ -5,6 +5,7 @@ export type User = {
     handle: string
     description: string
     image: string
+    links: string
 }
 
 export type RegisterUser = Pick<User, 'handle' | 'email' | 'name'> & {
@@ -26,3 +27,12 @@ export type AuthStore = {
     login: (token: string) => Promise<void>
     logout: () => void
 }
+
+export type SocialNetwork = {
+    id: number,
+    name: string
+    url: string
+    enabled: boolean
+}
+
+export type DevTreeLink = Pick<SocialNetwork, 'name' | 'url' | 'enabled'>

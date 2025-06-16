@@ -4,13 +4,24 @@ import { Toaster } from "sonner";
 import logoSVG from './../assets/logo.svg'
 import NavigationTabs from "../components/NavigationTabs";
 import { useAuth } from "../hooks/useAuth";
+import type { SocialNetwork } from "../types";
+import { useEffect, useState } from "react";
+import DevTreeLink from "../components/DevTreeLink";
+
 
 export default function AppLayout() {
     const { logout, user } = useAuth()
     const handleLogout = () => {
         logout()
     }
+    
+    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(JSON.parse(user?.links as string).filter((item: SocialNetwork) => item.enabled))
 
+    useEffect(() => {
+        setEnabledLinks(JSON.parse(user?.links as string).filter((item: SocialNetwork) => item.enabled))
+    }, [user])
+
+    
     return (
         <>
             <header className="bg-slate-800 py-5">
@@ -57,6 +68,14 @@ export default function AppLayout() {
                             }
 
                             <p className="text-center text-lg font-black text-white">{user?.description}</p>
+
+                            <div className="mt-20 flex flex-col gap-5"> 
+                                {
+                                    enabledLinks.map(link => (
+                                        <DevTreeLink key={link.name} link={link}/>
+                                    ))
+                                }
+                            </div>
                         </div>
                     </div>
 
