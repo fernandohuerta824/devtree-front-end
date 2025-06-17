@@ -12,10 +12,18 @@ type DevTreeProps = {
 }
 
 export default function DevTree({ data }: DevTreeProps) {
-    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(JSON.parse(data.links).filter((item: SocialNetwork) => item.enabled))
+
+    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(
+        JSON.parse(data?.links as string)
+            .filter((item: SocialNetwork) => item.enabled)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+    )
 
     useEffect(() => {
-        setEnabledLinks(JSON.parse(data.links).filter((item: SocialNetwork) => item.enabled))
+        setEnabledLinks(JSON.parse(data?.links as string)
+            .filter((item: SocialNetwork) => item.enabled)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+        )
     }, [data])
 
     return (

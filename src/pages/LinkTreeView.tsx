@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
 import { social } from "../data/social"
-import type { DevTreeLink, User } from "../types"
+import type { SocialNetwork, User } from "../types"
 import { DevTreeInput } from "../components/DevTreeInput"
 import { toast } from "sonner"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { updateUser } from "../api/DevTreeAPI"
 
 export default function LiknTreeView() {
-    const [devTreeLinks, setDevTreeLinks] = useState<Array<DevTreeLink>>(social)
+    const [devTreeLinks, setDevTreeLinks] = useState<Array<SocialNetwork>>(social)
 
     const queryClient = useQueryClient()
     const user: User = queryClient.getQueryData(['user'])!
@@ -20,6 +20,7 @@ export default function LiknTreeView() {
         },
         onSuccess(data) {
             toast.success('Updated has been successful')
+            setDevTreeLinks(JSON.parse(data.user.links))
             queryClient.setQueryData(['user'], (prevData: User) => ({
                 ...prevData,
                 ...data.user
@@ -28,15 +29,23 @@ export default function LiknTreeView() {
     })
 
     useEffect(() => {
-        const links = JSON.parse(user.links) as DevTreeLink[]
-        setDevTreeLinks(links)
+        const userLinks = JSON.parse(user.links) as SocialNetwork[]
+        const mergeLinks = devTreeLinks.map(l => {
+            const link = userLinks.find(dl => dl.name === l.name)
+            if (!link) {
+                return { ...l, id: null }
+            }
+            return link
+        })
+
+        setDevTreeLinks(mergeLinks)
     }, [])
 
     const handleChangeSocial = (socialNetwork: string, url: string) => {
         setDevTreeLinks(prevState => {
             const currentSocialIndex = prevState.findIndex(({ name }) => name === socialNetwork)
 
-            if(currentSocialIndex < 0) {
+            if (currentSocialIndex < 0) {
                 return prevState
             }
 
@@ -54,40 +63,73 @@ export default function LiknTreeView() {
         })
     }
 
-    const handleChangeEnabled = (socialNetwork: string) => {
-        setDevTreeLinks(prevState => {
-            const currentSocialIndex = prevState.findIndex(({ name }) => name === socialNetwork)
+    const handleChangeEnabled = (socialNetwork: string, onBlur = false) => {
+        const currentSocialIndex = devTreeLinks.findIndex(({ name }) => name === socialNetwork)
 
-            if(currentSocialIndex < 0) {
-                return prevState
+        if (currentSocialIndex < 0) {
+            return devTreeLinks
+        }
+
+        const newState = structuredClone(devTreeLinks)
+        const curSocial = newState[currentSocialIndex]
+        const links: SocialNetwork[] = JSON.parse(user.links).filter((l: SocialNetwork) => l.enabled)
+        const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
+
+        let newLinks: SocialNetwork[] = []
+        if (!socialRegExp.test(curSocial.url)) {
+            toast.error('You must provide a valid url')
+            curSocial.enabled = false
+        } else {
+            if(onBlur) {
+                return
             }
-
-            const newState = structuredClone(prevState)
-            const curSocial = newState[currentSocialIndex]
-            
-            const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
-
-            if (!socialRegExp.test(curSocial.url)) {
-                toast.error('You must provide a valid url')
+            curSocial.enabled = !newState[currentSocialIndex].enabled
+            if (curSocial.enabled) {
+                const newItem = {
+                    ...curSocial,
+                    id: links.length + 1
+                }
+                newLinks = [...links, newItem]
             } else {
+                newLinks =
+                    links
+                        .filter(l => l.enabled && l.name != curSocial.name)
+                        .map((l, i) => ({ ...l, id: i + 1 }))
 
-                curSocial.enabled = !newState[currentSocialIndex].enabled
+            }
+        }
+        const mergeLinks = newState.map(l => {
+            const linksWithId = newLinks.find(lwId => lwId.name === l.name && lwId.enabled)
+
+            if(linksWithId) {
+                return linksWithId
             }
 
-            return newState
+            return l
         })
+        queryClient.setQueryData(['user'],
+            (prevData: User) => (
+                {
+                    ...prevData,
+                    links: JSON.stringify(mergeLinks)
+                }
+            )
+        )
+
+        setDevTreeLinks(mergeLinks)
     }
+
 
     const handleUpdateLinks = () => {
 
-        const links = JSON.stringify(devTreeLinks)
-        mutate({links, description: user.description, handle: user.handle})
+ 
+        mutate({ links: JSON.stringify(devTreeLinks), description: user.description, handle: user.handle })
     }
     return (
         <>
             <div className="space-y-5">
                 {devTreeLinks.map(d => (
-                    <DevTreeInput 
+                    <DevTreeInput
                         key={d.name}
                         item={d}
                         onChangeSocial={handleChangeSocial}

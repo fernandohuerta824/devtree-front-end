@@ -22,10 +22,8 @@ export type RegisterFields = 'name' | 'email' | 'handle' | 'password'
 export type UpdateProfileFields = 'description' | 'handle'
 
 export type SocialNetwork = {
-    id: number,
+    id?: number | null,
     name: string
     url: string
     enabled: boolean
 }
-
-export type DevTreeLink = Pick<SocialNetwork, 'name' | 'url' | 'enabled'>

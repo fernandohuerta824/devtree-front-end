@@ -1,11 +1,11 @@
 import { Switch } from "@headlessui/react"
-import type { DevTreeLink } from "../types"
 import { classNames } from "../utils"
+import type { SocialNetwork } from "../types"
 
 type DevTreeInputProps = {
-    item: DevTreeLink
+    item: SocialNetwork
     onChangeSocial: (socialNetwork: string, url: string) => void
-    onChangeEnabled: (socialNetwork: string) => void
+    onChangeEnabled: (socialNetwork: string, onBlur?: boolean) => void
 }
 
 export function DevTreeInput({ item, onChangeSocial, onChangeEnabled }: DevTreeInputProps) {
@@ -23,7 +23,8 @@ export function DevTreeInput({ item, onChangeSocial, onChangeEnabled }: DevTreeI
                 type="text"
                 className="flex-1 border border-gray-400 rounded-lg"
                 onChange={(e) => {onChangeSocial(item.name, e.target.value)}}
-                value={item.url || `https://${item.name}.com/`}
+                value={item.url|| `https://${item.name}.com/`}
+                onBlur={() => onChangeEnabled(item.name, true)}
             />
             <Switch
                 checked={item.enabled}

@@ -16,7 +16,6 @@ export async function getUser() {
 
 export async function updateUser(user: Pick<User, 'handle' | 'description' | 'links'>) {
     try {
-        console.log(user)
         const { data } = await api.patch<{user: User, message: string}>("/user", user)
         return data
     } catch (error) {
