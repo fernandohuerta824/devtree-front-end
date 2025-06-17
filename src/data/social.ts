@@ -1,6 +1,6 @@
-import type { DevTreeLink } from "../types";
+import type { SocialNetwork } from "../types";
 
-export const social: Array<DevTreeLink> = [
+export const social: Array<SocialNetwork> = [
     { name: 'facebook', url: '', enabled: false },
     { name: 'github', url: '', enabled: false },
     { name: 'instagram', url: '', enabled: false },

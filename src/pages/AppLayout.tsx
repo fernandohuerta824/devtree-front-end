@@ -15,10 +15,17 @@ export default function AppLayout() {
         logout()
     }
     
-    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(JSON.parse(user?.links as string).filter((item: SocialNetwork) => item.enabled))
+    const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(
+        JSON.parse(user?.links as string)
+            .filter((item: SocialNetwork) => item.enabled)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+    )
 
     useEffect(() => {
-        setEnabledLinks(JSON.parse(user?.links as string).filter((item: SocialNetwork) => item.enabled))
+        setEnabledLinks(JSON.parse(user?.links as string)
+            .filter((item: SocialNetwork) => item.enabled)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+        )
     }, [user])
 
     

@@ -1,11 +1,11 @@
 import { Switch } from "@headlessui/react"
-import type { DevTreeLink } from "../types"
 import { classNames } from "../utils/index"
+import type { SocialNetwork } from "../types"
 
 type DevTreeInputProps = {
-    item: DevTreeLink
+    item: SocialNetwork
     onChangeSocial: (socialNetwork: string, url: string) => void
-    onChangeEnabled: (socialNetwork: string) => void
+    onChangeEnabled: (socialNetwork: string, onBlur?: boolean) => void
 }
 
 export function DevTreeInput({ item, onChangeSocial, onChangeEnabled }: DevTreeInputProps) {

@@ -1,5 +1,5 @@
 export type User = {
-    _id: string
+    id: string
     name: string
     email: string
     handle: string
@@ -29,10 +29,8 @@ export type AuthStore = {
 }
 
 export type SocialNetwork = {
-    id: number,
+    id?: number,
     name: string
     url: string
     enabled: boolean
 }
-
-export type DevTreeLink = Pick<SocialNetwork, 'name' | 'url' | 'enabled'>
