@@ -103,7 +103,7 @@ export default function LiknTreeView() {
         }
         setLinksSubmit(prevState => ({ ...prevState, isLoading: true, error: null }))
         try {
-            const { data } = await api.patch<{ user: User, message: string }>('/user', { links: JSON.stringify(devTreeLinks), handle: user?.handle, description: user?.description })!
+            const { data } = await api.patch<{ user: User, message: string }>('/user', { links: user?.links, handle: user?.handle, description: user?.description })!
             setLinksSubmit(prevState => ({ ...prevState, data: data.user, isLoading: false }))
             setUser(data.user)
             toast.success('Links updated was successful')
@@ -117,8 +117,16 @@ export default function LiknTreeView() {
         if (!user) {
             return
         }
-        const links = JSON.parse(user.links) as SocialNetwork[]
-        setDevTreeLinks(links)
+
+        const userLinks = JSON.parse(user.links) as SocialNetwork[]
+        const mergeLinks = devTreeLinks.map(l => {
+            const link = userLinks.find(dl => dl.name === l.name)
+            if (!link) {
+                return { ...l, id: 0 }
+            }
+            return link
+        })
+        setDevTreeLinks(mergeLinks)
     }, [])
 
     return (

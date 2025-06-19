@@ -7,28 +7,52 @@ import { useAuth } from "../hooks/useAuth";
 import type { SocialNetwork } from "../types";
 import { useEffect, useState } from "react";
 import DevTreeLink from "../components/DevTreeLink";
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
 
 export default function AppLayout() {
-    const { logout, user } = useAuth()
+    const { logout, user, setUser } = useAuth()
     const handleLogout = () => {
         logout()
     }
-    
+
     const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(
         JSON.parse(user?.links as string)
             .filter((item: SocialNetwork) => item.enabled)
-            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+            .sort((a: SocialNetwork, b: SocialNetwork) => a.id! - b.id!)
     )
 
     useEffect(() => {
         setEnabledLinks(JSON.parse(user?.links as string)
             .filter((item: SocialNetwork) => item.enabled)
-            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+            .sort((a: SocialNetwork, b: SocialNetwork) => a.id! - b.id!)
         )
     }, [user])
 
-    
+    const handleDragEnd = (e: DragEndEvent) => {
+        if(!user) {
+            return
+        }
+        const array = arrayMove(enabledLinks, e.active.id as number - 1, e.over?.id as number - 1)
+        const newLinks = array.map((l, i) => ({ ...l, id: i + 1 }))
+        setEnabledLinks(newLinks)
+        const links = JSON.parse(user.links) as SocialNetwork[]
+        const mergeLinks = links.map(l => {
+            const linksWithId = newLinks.find(lwId => lwId.name === l.name && lwId.enabled)
+
+            if (linksWithId) {
+                return linksWithId
+            }
+
+            return l
+        })
+
+        setUser({ ...user, links: JSON.stringify(mergeLinks) })
+        
+
+    }
+
     return (
         <>
             <header className="bg-slate-800 py-5">
@@ -76,13 +100,24 @@ export default function AppLayout() {
 
                             <p className="text-center text-lg font-black text-white">{user?.description}</p>
 
-                            <div className="mt-20 flex flex-col gap-5"> 
-                                {
-                                    enabledLinks.map(link => (
-                                        <DevTreeLink key={link.name} link={link}/>
-                                    ))
-                                }
-                            </div>
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <div className="mt-20 flex flex-col gap-5">
+                                    <SortableContext
+                                        items={enabledLinks}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+
+                                        {
+                                            enabledLinks.map(link => (
+                                                <DevTreeLink key={link.name} link={link} />
+                                            ))
+                                        }
+                                    </SortableContext>
+                                </div>
+                            </DndContext>
                         </div>
                     </div>
 

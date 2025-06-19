@@ -1,12 +1,29 @@
+import { useSortable } from "@dnd-kit/sortable"
 import type { SocialNetwork } from "../types"
+import { CSS } from "@dnd-kit/utilities"
 
 type DevTreeLinkProps = {
     link: SocialNetwork
 }
 
 export default function DevTreeLink ({ link }: DevTreeLinkProps) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: link.id
+    })
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition
+    }
+    
     return (
-        <li className="bg-white px-5 py-2 flex items-center gap-5 rounded-lg">
+        <li 
+            className="bg-white px-5 py-2 flex items-center gap-5 rounded-lg"
+            style={style}
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+        >
             <div
                 className="w-12 h-12 bg-cover"
                 style={{

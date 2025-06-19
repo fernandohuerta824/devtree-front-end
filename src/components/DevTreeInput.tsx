@@ -9,8 +9,15 @@ type DevTreeInputProps = {
 }
 
 export function DevTreeInput({ item, onChangeSocial, onChangeEnabled }: DevTreeInputProps) {
+    
+
+
+
+
     return (
-        <div className="bg-white shadow-md p-5 flex items-center gap-3 rounded-2xl">
+        <div 
+            className="bg-white shadow-md p-5 flex items-center gap-3 rounded-2xl"
+        >
             <div
                 className="w-12 h-12 bg-cover"
                 style={{
