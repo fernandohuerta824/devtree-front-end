@@ -10,8 +10,6 @@ export default function LiknTreeView() {
     const [devTreeLinks, setDevTreeLinks] = useState<Array<SocialNetwork>>(social)
 
     const queryClient = useQueryClient()
-    const user: User = queryClient.getQueryData(['user'])!
-
     const { mutate } = useMutation({
         mutationFn: updateUser,
         mutationKey: ['updateProfile'],
@@ -29,11 +27,13 @@ export default function LiknTreeView() {
     })
 
     useEffect(() => {
+        const user: User = queryClient.getQueryData(['user'])!
+
         const userLinks = JSON.parse(user.links) as SocialNetwork[]
         const mergeLinks = devTreeLinks.map(l => {
             const link = userLinks.find(dl => dl.name === l.name)
             if (!link) {
-                return { ...l, id: null }
+                return { ...l, id: 0 }
             }
             return link
         })
@@ -42,25 +42,27 @@ export default function LiknTreeView() {
     }, [])
 
     const handleChangeSocial = (socialNetwork: string, url: string) => {
-        setDevTreeLinks(prevState => {
-            const currentSocialIndex = prevState.findIndex(({ name }) => name === socialNetwork)
+        const currentSocialIndex = devTreeLinks.findIndex(({ name }) => name === socialNetwork)
 
-            if (currentSocialIndex < 0) {
-                return prevState
-            }
+        if (currentSocialIndex < 0) {
+            return devTreeLinks
+        }
 
-            const newState = structuredClone(prevState)
-            const curSocial = newState[currentSocialIndex]
+        const newState = structuredClone(devTreeLinks)
+        const curSocial = newState[currentSocialIndex]
 
-            const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
-            if (!socialRegExp.test(url)) {
-                curSocial.url = `https://${curSocial.name}.com/`
-            } else {
-                curSocial.url = url
-            }
+        const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
+        if (!socialRegExp.test(url)) {
+            curSocial.url = `https://${curSocial.name}.com/`
+        } else {
+            curSocial.url = url
+        }
 
-            return newState
-        })
+        queryClient.setQueryData(['user'], (prevState: User) => ({
+            ...prevState,
+            links: JSON.stringify(newState)
+        }))
+        setDevTreeLinks(newState)
     }
 
     const handleChangeEnabled = (socialNetwork: string, onBlur = false) => {
@@ -72,6 +74,8 @@ export default function LiknTreeView() {
 
         const newState = structuredClone(devTreeLinks)
         const curSocial = newState[currentSocialIndex]
+        const user: User = queryClient.getQueryData(['user'])!
+
         const links: SocialNetwork[] = JSON.parse(user.links).filter((l: SocialNetwork) => l.enabled)
         const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
 
@@ -121,10 +125,11 @@ export default function LiknTreeView() {
 
 
     const handleUpdateLinks = () => {
+        const user: User = queryClient.getQueryData(['user'])!
 
- 
-        mutate({ links: JSON.stringify(devTreeLinks), description: user.description, handle: user.handle })
+        mutate({ links: user.links, description: user.description, handle: user.handle })
     }
+
     return (
         <>
             <div className="space-y-5">

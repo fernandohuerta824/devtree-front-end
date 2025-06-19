@@ -74,6 +74,8 @@ export default function ProfileView() {
     }
 
     const handleUserProfileForm = async (fd: ProfileUser) => {
+        const data: User = queryClient.getQueryData(['user'])!
+
         if(updateProfile.isPending) {
             return
         }

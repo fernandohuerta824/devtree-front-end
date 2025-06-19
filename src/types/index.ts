@@ -22,7 +22,7 @@ export type RegisterFields = 'name' | 'email' | 'handle' | 'password'
 export type UpdateProfileFields = 'description' | 'handle'
 
 export type SocialNetwork = {
-    id?: number | null,
+    id: number,
     name: string
     url: string
     enabled: boolean

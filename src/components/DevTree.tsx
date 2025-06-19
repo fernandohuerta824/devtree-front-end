@@ -1,11 +1,13 @@
 import { Link, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
-
+import { DndContext, type DragEndEvent, closestCenter } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import logoSVG from './../assets/logo.svg'
 import NavigationTabs from "../components/NavigationTabs";
 import { type SocialNetwork, type User } from "../types";
 import { useEffect, useState } from "react";
 import DevTreeLink from "./DevTreeLinks";
+import { useQueryClient } from "@tanstack/react-query";
 
 type DevTreeProps = {
     data: User
@@ -16,15 +18,38 @@ export default function DevTree({ data }: DevTreeProps) {
     const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(
         JSON.parse(data?.links as string)
             .filter((item: SocialNetwork) => item.enabled)
-            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id - b.id)
     )
+    const queryClient = useQueryClient()
+
 
     useEffect(() => {
         setEnabledLinks(JSON.parse(data?.links as string)
             .filter((item: SocialNetwork) => item.enabled)
-            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id! - b.id!)
+            .sort((a: SocialNetwork, b: SocialNetwork ) => a.id - b.id)
         )
     }, [data])
+
+    const handleDragEnd = (e: DragEndEvent) => {
+        const array = arrayMove(enabledLinks, e.active.id as number - 1, e.over?.id as number - 1)
+        const user: User = queryClient.getQueryData(['user'])!
+        const newLinks = array.map((l, i) => ({...l, id: i + 1}))
+        setEnabledLinks(newLinks)
+        const links = JSON.parse(user.links) as SocialNetwork[]
+        const mergeLinks = links.map(l => {
+            const linksWithId = newLinks.find(lwId => lwId.name === l.name && lwId.enabled)
+
+            if(linksWithId) {
+                return linksWithId
+            }
+
+            return l
+        })
+
+        queryClient.setQueryData(['user'], (prevUser: User) => {
+            return { ...prevUser, links: JSON.stringify(mergeLinks) }
+        })
+    }
 
     return (
         <>
@@ -73,13 +98,24 @@ export default function DevTree({ data }: DevTreeProps) {
 
                             <p className="text-center text-lg font-black text-white">{data.description}</p>
 
-                            <div className="mt-20 flex flex-col gap-5"> 
-                                {
-                                    enabledLinks.map(link => (
-                                        <DevTreeLink key={link.name} link={link}/>
-                                    ))
-                                }
-                            </div>
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <div className="mt-20 flex flex-col gap-5"> 
+                                    <SortableContext
+                                        items={enabledLinks}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        {
+                                            enabledLinks.map(link => (
+                                                <DevTreeLink key={link.name} link={link}/>
+                                            ))
+                                        }
+                                    </SortableContext>
+                                </div>
+                            </DndContext>
+
                         </div>
                     </div>
                 </main>
