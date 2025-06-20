@@ -76,25 +76,27 @@ export default function LiknTreeView() {
     }
 
     const handleChangeSocial = (socialNetwork: string, url: string) => {
-        setDevTreeLinks(prevState => {
-            const currentSocialIndex = prevState.findIndex(({ name }) => name === socialNetwork)
+        if(!user) {
+            return
+        }
+        const currentSocialIndex = devTreeLinks.findIndex(({ name }) => name === socialNetwork)
 
-            if (currentSocialIndex < 0) {
-                return prevState
-            }
+        if (currentSocialIndex < 0) {
+            return devTreeLinks
+        }
 
-            const newState = structuredClone(prevState)
-            const curSocial = newState[currentSocialIndex]
+        const newState = structuredClone(devTreeLinks)
+        const curSocial = newState[currentSocialIndex]
 
-            const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
-            if (!socialRegExp.test(url)) {
-                curSocial.url = `https://${curSocial.name}.com/`
-            } else {
-                curSocial.url = url
-            }
-
-            return newState
-        })
+        const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
+        if (!socialRegExp.test(url)) {
+            curSocial.url = `https://${curSocial.name}.com/`
+        } else {
+            curSocial.url = url
+        }
+        
+        setUser({...user, links: JSON.stringify(newState)})
+        setDevTreeLinks(newState)
     }
 
     const handleUpdateLinks = async () => {

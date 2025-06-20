@@ -9,7 +9,7 @@ export default function Redirect() {
         return <Navigate to={'/'} />
     }
 
-    if (!location.pathname.startsWith('/admin') && user) {
+    if ((location.pathname.startsWith('/auth') || location.pathname === '/') && user) {
         return <Navigate to={'/admin'} />
     }
 

@@ -34,3 +34,7 @@ export type SocialNetwork = {
     url: string
     enabled: boolean
 }
+
+export type UserHandle = Pick<User, 'description' | 'name' | 'handle' | 'image'> & {
+    links: SocialNetwork[]
+}
