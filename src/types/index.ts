@@ -8,6 +8,10 @@ export type User = {
     links: string
 }
 
+export type UserHandle = Pick<User, 'description' | 'name' | 'handle' | 'image'> & {
+    links: SocialNetwork[]
+}
+
 export type RegisterUser = Pick<User, 'handle' | 'email' | 'name'> & {
     password: string
     confirmPassword: string

@@ -1,4 +1,4 @@
-import type { User } from "../types";
+import type { User, UserHandle } from "../types";
 import { api } from "../utils/axios";
 import { isAxiosError } from "axios";
 
@@ -40,3 +40,15 @@ export async function uploadImage(file: File) {
     }
 }
 
+export async function getUserByHandle(handle: string) {
+    try {
+        const { data } =  await api<{user: UserHandle}>(`/user/${handle}`)
+        return data.user
+    } catch(error) {
+        if(isAxiosError(error)) {
+            if(error.status === 404) {
+                return null
+            }
+        }
+    }
+}

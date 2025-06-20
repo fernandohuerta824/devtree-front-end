@@ -44,8 +44,35 @@ const router = createBrowserRouter([
                         })
                     }
                 ]
+            },
+            {
+                path: ':handle',
+                lazy: async () => ({
+                    Component: (await import('./pages/AuthLayout')).default
+                }),
+                children: [
+                    {
+                        index: true,
+                        lazy: async () => ({
+                            Component: (await import('./pages/HandleView')).default
+                        })
+                    }
+                ]
+            },
+            {
+                path: '404',
+                lazy: async () => ({
+                    Component: (await import('./pages/AuthLayout')).default
+                }),
+                children: [
+                    {
+                        index: true,
+                        lazy: async () => ({
+                            Component: (await import('./pages/404')).default
+                        }),
+                    }
+                ]
             }
-
         ]
     },
 ])
