@@ -12,10 +12,10 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-ki
 
 
 export default function AppLayout() {
-    const { logout, user, setUser } = useAuth()
-    const handleLogout = () => {
-        logout()
-    }
+    const authContext = useAuth()
+    const user = authContext.user!
+    const setUser = authContext.setUser
+    
 
     const [enabledLinks, setEnabledLinks] = useState<SocialNetwork[]>(
         JSON.parse(user?.links as string)
@@ -61,12 +61,7 @@ export default function AppLayout() {
                         <img src={logoSVG} className="w-full block" alt="Logo de LinkTree" />
                     </div>
                     <div className="md:w-1/3 md:flex md:justify-end">
-                        <button
-                            className=" bg-lime-500 p-2 text-slate-800 uppercase font-black text-xs rounded-lg cursor-pointer"
-                            onClick={handleLogout}
-                        >
-                            Cerrar Sesión
-                        </button>
+
                     </div>
                 </div>
             </header>
@@ -78,7 +73,7 @@ export default function AppLayout() {
                     <div className="flex justify-end">
                         <Link
                             className="font-bold text-right text-slate-800 text-2xl"
-                            to={''}
+                            to={`/${user?.handle}`}
                             target="_blank"
                             rel="noreferrer noopener"
                         >Visitar Mi Perfil / {user?.handle}</Link>

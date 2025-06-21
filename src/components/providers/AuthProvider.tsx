@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { AuthStore, User } from "../../types";
-
 import { AuthContext } from "../../store/AuthStore";
 import { getUser } from "../../loaders/auth";
 
