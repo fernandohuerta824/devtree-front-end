@@ -1,5 +1,155 @@
+import { social } from "../data/social"
+import { DevTreeInput } from "../components/DevTreeInput"
+import { useEffect, useState } from "react"
+import type { SocialNetwork, User } from "../types"
+import { toast } from "sonner"
+import { useAuth } from "../hooks/useAuth"
+import { api } from "../utils/axios"
+
+
 export default function LiknTreeView() {
+    const [devTreeLinks, setDevTreeLinks] = useState<Array<SocialNetwork>>(social)
+
+    const { user, setUser } = useAuth()
+
+    const [linksSubmit, setLinksSubmit] = useState<{
+        isLoading: boolean,
+        data: null | User,
+        error: null | unknown
+    }>({
+        isLoading: false,
+        data: null,
+        error: null
+    })
+
+    const handleChangeEnabled = (socialNetwork: string, onBlur = false) => {
+        const currentSocialIndex = devTreeLinks.findIndex(({ name }) => name === socialNetwork)
+
+        if (currentSocialIndex < 0) {
+            return devTreeLinks
+        }
+
+        const newState = structuredClone(devTreeLinks)
+        const curSocial = newState[currentSocialIndex]
+        if(!user) {
+            return devTreeLinks
+        }
+        const links: SocialNetwork[] = JSON.parse(user.links).filter((l: SocialNetwork) => l.enabled)
+
+        const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
+        let newLinks: SocialNetwork[] = []
+
+        if (!socialRegExp.test(curSocial.url)) {
+            toast.error('You must provide a valid url')
+        } else {
+
+            if(onBlur) {
+                return
+            }
+            curSocial.enabled = !newState[currentSocialIndex].enabled
+            if (curSocial.enabled) {
+                const newItem = {
+                    ...curSocial,
+                    id: links.length + 1
+                }
+                newLinks = [...links, newItem]
+            } else {
+                newLinks =
+                    links
+                        .filter(l => l.enabled && l.name != curSocial.name)
+                        .map((l, i) => ({ ...l, id: i + 1 }))
+
+            }
+        }
+        const mergeLinks = newState.map(l => {
+            const linksWithId = newLinks.find(lwId => lwId.name === l.name && lwId.enabled)
+
+            if(linksWithId) {
+                return linksWithId
+            }
+
+            return l
+        })
+        console.log(mergeLinks)
+        setUser({...user, links: JSON.stringify(mergeLinks)})
+        setDevTreeLinks(mergeLinks)
+    }
+
+    const handleChangeSocial = (socialNetwork: string, url: string) => {
+        if(!user) {
+            return
+        }
+        const currentSocialIndex = devTreeLinks.findIndex(({ name }) => name === socialNetwork)
+
+        if (currentSocialIndex < 0) {
+            return devTreeLinks
+        }
+
+        const newState = structuredClone(devTreeLinks)
+        const curSocial = newState[currentSocialIndex]
+
+        const socialRegExp = new RegExp(`^https://(${curSocial.name}).com+/[a-zA-Z0-9._-]+$`)
+        if (!socialRegExp.test(url)) {
+            curSocial.url = `https://${curSocial.name}.com/`
+        } else {
+            curSocial.url = url
+        }
+        
+        setUser({...user, links: JSON.stringify(newState)})
+        setDevTreeLinks(newState)
+    }
+
+    const handleUpdateLinks = async () => {
+        if (linksSubmit.isLoading) {
+            return
+        }
+        setLinksSubmit(prevState => ({ ...prevState, isLoading: true, error: null }))
+        try {
+            const { data } = await api.patch<{ user: User, message: string }>('/user', { links: user?.links, handle: user?.handle, description: user?.description })!
+            setLinksSubmit(prevState => ({ ...prevState, data: data.user, isLoading: false }))
+            setUser(data.user)
+            toast.success('Links updated was successful')
+        } catch (error) {
+            setLinksSubmit(prevState => ({ ...prevState, error, isLoading: false }))
+            toast.error('Something went wrong, try again')
+        }
+    }
+
+    useEffect(() => {
+        if (!user) {
+            return
+        }
+
+        const userLinks = JSON.parse(user.links) as SocialNetwork[]
+        const mergeLinks = devTreeLinks.map(l => {
+            const link = userLinks.find(dl => dl.name === l.name)
+            if (!link) {
+                return { ...l, id: 0 }
+            }
+            return link
+        })
+        setDevTreeLinks(mergeLinks)
+    }, [])
+
     return (
-        <h1></h1>
+        <>
+            <div className="space-y-5">
+                {devTreeLinks.map(d => (
+                    <DevTreeInput
+                        key={d.name}
+                        item={d}
+                        onChangeSocial={handleChangeSocial}
+                        onChangeEnabled={handleChangeEnabled}
+                    />
+                ))}
+                <button
+                    className="bg-cyan-400 text-lg w-full uppercase text-slate-600 rounded-lg font-bold p-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    onClick={handleUpdateLinks}
+                    disabled={linksSubmit.isLoading}
+                >
+                    {linksSubmit.isLoading ? 'Saving Changes...' : 'Save Changes'}
+                </button>
+            </div>
+        </>
     )
 }
