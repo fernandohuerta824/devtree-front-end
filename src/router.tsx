@@ -5,6 +5,12 @@ const router = createBrowserRouter([
         path: '/',
         children: [
             {
+                index: true,
+                lazy: async () => ({
+                    Component: (await import('./pages/HomeView')).default
+                }),
+            },
+            {
                 path: 'auth',
                 lazy: async () => ({
                     Component: (await import('./pages/AuthLayout')).default

@@ -18,6 +18,7 @@ export default function AppLayout() {
         }
         return <p>{error.message}</p>
     }
+    console.log(data)
     if(data) {
         return (
             <DevTree data={data}/>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useForm, type ErrorOption, } from "react-hook-form"
 import { isAxiosError } from "axios"
 import { toast } from "sonner"
@@ -10,7 +10,8 @@ import { api } from "../utils/axios"
 
 export default function Register() {
     const { register, watch, handleSubmit, formState: { errors, isSubmitting }, setError, reset } = useForm<RegisterUser>()
-
+    const location = useLocation()
+    const handle = location.state?.handle
 
     const handleRegister = async (data: RegisterUser) => {
         if(isSubmitting) {
@@ -55,6 +56,7 @@ export default function Register() {
                 label="Name" 
                 error={errors.name && String(errors.name.message)}
                 placeholder='John Doe'
+                defaultValue={handle || ''}
                 type='text'
                 {...register('name', {
                     required: 'The name is required',
