@@ -6,7 +6,7 @@ export const AuthContext = createContext<AuthStore>({
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     setUser(user: User | null) {user},
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    login(token: string) {token},
+    async login(token: string) {token},
     logout() {
         
     },

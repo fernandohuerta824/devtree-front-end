@@ -17,7 +17,7 @@ const getUserByHandle = async (handle: string) => {
     }
 }
 
-export const devTreeViewLoader = ({ params }) => {
+export const devTreeViewLoader = ({ params }: { params: { handle: string } }) => {
     return {
         user: getUserByHandle(params.handle)
     }
