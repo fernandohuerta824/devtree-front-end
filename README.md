@@ -74,10 +74,15 @@ _
 - [x] Crear la estructura básica de la aplicación
 - [x] Implementar el registro de usuarios
 - [x] Implementar el inicio de sesión
-- [ ] Implementar la personalización del perfil
-- [ ] Implementar la subida de imágenes
-
--- Se andarán más tareas a medida que avance el desarrollo --
+- [x] Implementar la autenticación JWT
+- [x] Crear la página de perfil de usuario
+- [x] Implementar la actualización del perfil (nombre, foto, descripción)
+- [x] Implementar la subida de imágenes (con Cloudinary)
+- [x] Implementar la subida de enlaces a redes sociales
+- [x] Implementar la visualización de enlaces en el perfil
+- [x] Implementar el drag and drop para reordenar enlaces
+- [x] Implementar la visualización de los enlaces en una página pública
+- [x] Implementar la pagina de inicio 
 
  
 ## 📂 Estructura del proyecto
