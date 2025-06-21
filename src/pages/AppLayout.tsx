@@ -1,7 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
-import logoSVG from './../assets/logo.svg'
 import NavigationTabs from "../components/NavigationTabs";
 import { useAuth } from "../hooks/useAuth";
 import type { SocialNetwork } from "../types";
@@ -9,6 +8,7 @@ import { useEffect, useState } from "react";
 import DevTreeLink from "../components/DevTreeLink";
 import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import Header from "../components/Header";
 
 
 export default function AppLayout() {
@@ -55,16 +55,7 @@ export default function AppLayout() {
 
     return (
         <>
-            <header className="bg-slate-800 py-5">
-                <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center md:justify-between">
-                    <div className="w-full p-5 lg:p-0 md:w-1/3">
-                        <img src={logoSVG} className="w-full block" alt="Logo de LinkTree" />
-                    </div>
-                    <div className="md:w-1/3 md:flex md:justify-end">
-
-                    </div>
-                </div>
-            </header>
+            <Header/>
             <div className="bg-gray-300  min-h-screen py-10">
                 <main className="mx-auto max-w-5xl p-10 md:p-0">
 
